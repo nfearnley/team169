@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>team169</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>lib</name>
+			<type>2</type>
+			<location>/Users/nfearnley2/Desktop/battlecode/team169/Battlecode2013/lib</location>
+		</link>
+		<link>
+			<name>team169</name>
+			<type>2</type>
+			<location>/Users/nfearnley2/Desktop/battlecode/team169/bin/team169</location>
+		</link>
+	</linkedResources>
+</projectDescription>

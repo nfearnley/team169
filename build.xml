@@ -1,0 +1,88 @@
+<project name="team169" basedir="." default="run">
+
+  <description>
+    Build file for Battlecode 2013 players.
+  </description>
+
+  <property name="path.base" location="."/>
+  <property name="path.bcbase" location="${path.base}/Battlecode2013"/>
+
+  <property name="path.lib" location="${path.bcbase}/lib"/>
+  <property name="path.maps" location="${path.bcbase}/maps"/>
+	
+  <property name="path.src" location="${path.base}/src"/>
+  <property name="path.bin" location="${path.base}/bin"/>
+  
+  <fileset id="files.build" dir="${path.lib}">
+    <include name="*.jar"/>
+  </fileset>
+  
+  <path id="classpath.run">
+    <dirset dir="${path.bin}"/>
+    <dirset dir="${path.lib}"/>
+    <dirset dir="${path.src}"/>
+    <fileset refid="files.build"/>
+  </path>
+  
+  <target name="-init">
+    <mkdir dir="${path.bin}"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${path.bin}"/>
+  </target>
+
+  <target name="build" depends="-init">
+    <javac 
+     classpathref="classpath.run" 
+     destdir="${path.bin}" 
+     srcdir="${path.src}"
+	 target="1.6"
+	 source="1.6"
+     debug="true">
+      <compilerarg line="-Xlint"/>
+    </javac>
+  </target>
+
+  <target name="run" depends="build">
+    <java 
+     classpathref="classpath.run"
+     fork="yes"
+     dir="${path.bcbase}"
+     classname="battlecode.client.Main">
+      <jvmarg value="-Dapple.awt.graphics.UseQuartz=true"/>
+      <jvmarg value="-Dbc.server.map-path=${path.maps}"/>
+      <jvmarg value="-Xmx256m"/> 
+	  <jvmarg value="-Djava.library.path=${path.lib}" />
+      <arg line="-c bc.conf"/>
+    </java>
+  </target> 
+
+  <target name="serve" depends="build">
+    <java
+     classpathref="classpath.run"
+     fork="yes"
+     dir="${path.bcbase}"
+     classname="battlecode.server.Main">
+      <jvmarg value="-Dbc.server.mode=tcp"/>
+      <arg line="-c bc.conf"/>
+    </java>
+  </target>
+
+  <target name="file" depends="build">
+    <java
+     classpathref="classpath.run"
+     fork="yes"
+     dir="${path.bcbase}"
+     classname="battlecode.server.Main">
+      <jvmarg value="-Dbc.server.mode=headless"/>
+      <arg line="-c bc.conf"/>
+    </java>
+  </target>
+
+  <target name="jar" depends="build">
+    <jar destfile="${path.base}/submission.jar"
+      basedir="${path.src}"
+      includes="team169/**/*.java"/>
+  </target>
+</project>
