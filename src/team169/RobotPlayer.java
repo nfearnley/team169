@@ -1,5 +1,8 @@
 package team169;
 
+import team169.robots.HqSwarm;
+import team169.robots.SoldierSwarm;
+import team169.robots.SoldierYield;
 import battlecode.common.RobotController;
 
 public class RobotPlayer
@@ -10,10 +13,10 @@ public class RobotPlayer
         switch (rc.getType())
         {
         case HQ:
-            rb = new RobotHqBrain(rc);
+            rb = new HqSwarm(rc);
             break;
         case SOLDIER:
-            rb = new RobotSoldierBrain(rc);
+            rb = new SoldierSwarm(rc);
             break;
         case ARTILLERY:
             break;

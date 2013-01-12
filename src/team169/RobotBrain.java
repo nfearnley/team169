@@ -3,7 +3,7 @@ package team169;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 
-public class RobotBrain
+public abstract class RobotBrain
 {
     public RobotController rc;
 
@@ -12,14 +12,8 @@ public class RobotBrain
         this.rc = rc;
     }
 
-    public void init() throws GameActionException
-    {
+    public abstract void init() throws GameActionException;
 
-    }
-
-    public void run() throws GameActionException
-    {
-
-    }
+    public abstract void run() throws GameActionException;
 
 }

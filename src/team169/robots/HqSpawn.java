@@ -1,20 +1,23 @@
-package team169;
+package team169.robots;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
-import battlecode.common.Upgrade;
+import battlecode.common.Team;
+import team169.RobotBrain;
+import team169.constants.IndicatorString;
 
-public class RobotHqBrain extends RobotBrain
+public class HqSpawn extends RobotBrain
 {
-    public RobotHqBrain(RobotController rc)
+    Direction enemyDir;
+
+    public HqSpawn(RobotController rc)
     {
         super(rc);
     }
 
-    Direction enemyDir;
-
+    @Override
     public void init() throws GameActionException
     {
         MapLocation hqLoc = rc.getLocation();
@@ -22,9 +25,10 @@ public class RobotHqBrain extends RobotBrain
         rc.setIndicatorString(IndicatorString.ROBOT_TYPE, "HQ");
     }
 
+    @Override
     public void run() throws GameActionException
     {
-        Direction spawnDir = enemyDir.rotateRight();
+        Direction spawnDir = enemyDir;
         while ((!rc.canMove(spawnDir)) && (spawnDir != enemyDir))
         {
             spawnDir = spawnDir.rotateRight();
@@ -32,10 +36,6 @@ public class RobotHqBrain extends RobotBrain
         if (rc.canMove(spawnDir))
         {
             rc.spawn(spawnDir);
-        } else
-        {
-            rc.researchUpgrade(Upgrade.NUKE);
         }
     }
-
 }

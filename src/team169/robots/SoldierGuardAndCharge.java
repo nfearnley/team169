@@ -1,15 +1,17 @@
-package team169;
+package team169.robots;
 
+import team169.RobotBrain;
+import team169.constants.IndicatorString;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 
-public class RobotSoldierBrain extends RobotBrain
+public class SoldierGuardAndCharge extends RobotBrain
 {
     boolean isGuard = false;
 
-    public RobotSoldierBrain(RobotController rc)
+    public SoldierGuardAndCharge(RobotController rc)
     {
         super(rc);
     }
@@ -23,7 +25,6 @@ public class RobotSoldierBrain extends RobotBrain
         {
             isGuard = true;
         }
-        
         rc.setIndicatorString(IndicatorString.ROBOT_TYPE, isGuard ? "Guard" : "Soldier");
     }
 
