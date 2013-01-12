@@ -39,6 +39,7 @@ public class RobotPlayer
                 rb.init();
             } catch (Exception e)
             {
+                System.out.println("Init: Exception should not have gotten this far");
                 e.printStackTrace();
             }
 
@@ -46,13 +47,14 @@ public class RobotPlayer
             {
                 try
                 {
+                    rc.yield();
                     if (rc.isActive())
                     {
                         rb.run();
                     }
-                    rc.yield();
                 } catch (Exception e)
                 {
+                    System.out.println("Run: Exception should not have gotten this far");
                     e.printStackTrace();
                 }
 

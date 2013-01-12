@@ -2,6 +2,7 @@ package team169.robots;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
+import battlecode.common.GameActionExceptionType;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import team169.RobotBrain;
@@ -31,21 +32,34 @@ public class SoldierSwarm extends RobotBrain
     public void run() throws GameActionException
     {
         receiveBroadcasts();
+        //System.out.println("Run: Received broadcasts");
         checkIsLeader();
+        //System.out.println("Run: Checked if leader");
         if (isLeader)
         {
+            //System.out.println("Run: isLeader");
             moveTowards(targetLoc);
+            //System.out.println("Run: Moved towards target");
         }
         else
         {
+            //System.out.println("Run: isNotLeader");
             moveTowards(leaderLoc);
+            //System.out.println("Run: Moved towards leader");
         }
     }
 
     public void moveTowards(MapLocation target)
     {
+        if (rc.getLocation().equals(target))
+        {
+            return;
+        }
+        
         Direction enemyDir = rc.getLocation().directionTo(target);
-        Direction newDir = null;
+        //System.out.println(enemyDir + ": " + rc.getLocation() + " -> " + target);
+        
+        Direction newDir = Direction.NONE;
         if (rc.canMove(enemyDir))
         {
             newDir = enemyDir;
@@ -56,20 +70,24 @@ public class SoldierSwarm extends RobotBrain
         {
             newDir = enemyDir.rotateLeft();
         }
-        rc.setIndicatorString(1, newDir.toString());
-
-        if (newDir == null)
+        
+        if (newDir == Direction.NONE)
         {
             return;
         }
 
         MapLocation loc = rc.getLocation().add(newDir);
+        if (loc == pathLoc)
+        {
+            return;
+        }
+        
         try
         {
             if (rc.senseMine(loc) != null)
             {
                 rc.defuseMine(loc);
-            } else if (!loc.equals(pathLoc) || isLeader)
+            } else
             {
                 rc.move(newDir);
             }
@@ -104,7 +122,14 @@ public class SoldierSwarm extends RobotBrain
             rc.setIndicatorString(2, attack + " : " + leaderId);
         } catch (GameActionException e)
         {
-            e.printStackTrace();
+            if (e.getType() == GameActionExceptionType.NOT_ENOUGH_RESOURCE)
+            {
+                System.err.println("Not enough energy to receive broadcasts");
+            }
+            else
+            {
+                e.printStackTrace();
+            }
         }
     }
 

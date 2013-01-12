@@ -2,25 +2,24 @@ package team169.robots;
 
 import team169.RobotBrain;
 import team169.constants.BroadcastChannel;
-import team169.constants.IndicatorString;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
+import battlecode.common.GameObject;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
-import battlecode.engine.instrumenter.lang.System;
 
 public class HqSwarm extends RobotBrain
 {
     Direction enemyDir;
+    MapLocation enemyHqLoc;
     Robot leader = null;
     Robot target = null;
-    MapLocation leaderLoc = null;
-    MapLocation targetLoc = null;
-    MapLocation pathLoc = null;
+    MapLocation leaderLoc;
+    MapLocation targetLoc;
     int leaderId = 0;
 
     public HqSwarm(RobotController rc)
@@ -32,15 +31,18 @@ public class HqSwarm extends RobotBrain
     {
         MapLocation hqLoc = rc.getLocation();
         enemyDir = hqLoc.directionTo(rc.senseEnemyHQLocation());
+        enemyHqLoc = rc.senseEnemyHQLocation();
+        leaderLoc = rc.getLocation();
+        targetLoc = enemyHqLoc;
     }
 
-    public void run()
+    public void run() throws GameActionException
     {
         spawnInCircle();
 
-        getLeaderLoc();
-        getTargetLoc();
-        getPathLoc();
+        getLeader();
+        getTarget();
+        bubbleLeader();
         BroadcastCommands();
     }
 
@@ -58,8 +60,8 @@ public class HqSwarm extends RobotBrain
                 rc.spawn(spawnDir);
             } catch (GameActionException e)
             {
+                System.err.println("spawnInCircle: Spawning exception");
                 e.printStackTrace();
-                rc.addMatchObservation("UhOh");
             }
         }
     }
@@ -76,6 +78,8 @@ public class HqSwarm extends RobotBrain
             attack = 0;
         }
 
+        MapLocation pathLoc = getPath(leaderLoc, targetLoc);
+
         try
         {
             rc.broadcast(BroadcastChannel.ATTACK, attack);
@@ -88,128 +92,116 @@ public class HqSwarm extends RobotBrain
             rc.broadcast(BroadcastChannel.PATH_Y, pathLoc.y);
         } catch (GameActionException e)
         {
+            System.err.println("BroadcastCommands: Broadcasting exception");
             e.printStackTrace();
         }
     }
 
-    private void getLeaderLoc()
+    private MapLocation getPath(MapLocation from, MapLocation to)
     {
+        return from.add(from.directionTo(to));
+    }
 
-        RobotInfo leaderInfo = getLeaderInfo();
-        if (leaderInfo != null)
+    private void getLeader() throws GameActionException
+    {
+        if (!isRobotAlive(leader))
         {
-            leaderLoc = leaderInfo.location;
+            leader = getNextRobot(rc.getTeam(), leaderLoc);
+        }
+
+        if (isRobotAlive(leader))
+        {
+            leaderLoc = getRobotLoc(leader);
+            leaderId = leader.getID();
         } else
         {
             leaderLoc = rc.getLocation();
+            leaderId = 0;
         }
     }
 
-    private void getTargetLoc()
+    private void bubbleLeader()
     {
-        RobotInfo targetInfo = getTargetInfo();
-        if (targetInfo != null)
+        try
+        {   
+            while (!leaderLoc.isAdjacentTo(targetLoc))
+            {
+                GameObject object = rc.senseObjectAtLocation(getPath(leaderLoc, targetLoc));
+                Robot robot;
+                if (object instanceof Robot)
+                {
+                    robot = (Robot) object;
+                }
+                else
+                {
+                    break;
+                }
+                
+                if (robot.getTeam() != rc.getTeam())
+                {
+                    break;
+                }
+                
+                if (rc.senseRobotInfo(robot).type != RobotType.SOLDIER)
+                {
+                    break;
+                }
+
+                leader = robot;
+                leaderLoc = getRobotLoc(leader);
+            }
+            
+        }
+        catch (GameActionException e)
         {
-            targetLoc = targetInfo.location;
+            
+        }
+    }
+
+    private void getTarget() throws GameActionException
+    {
+        if (!isRobotAlive(target))
+        {
+            target = getNextRobot(rc.getTeam().opponent(), leaderLoc);
+        }
+
+        if (isRobotAlive(target))
+        {
+            targetLoc = getRobotLoc(target);
         } else
         {
             targetLoc = rc.senseEnemyHQLocation();
         }
     }
 
-    private void getPathLoc()
+    private MapLocation getRobotLoc(Robot robot) throws GameActionException
     {
-        pathLoc = leaderLoc.add(leaderLoc.directionTo(targetLoc));
+        return rc.senseRobotInfo(robot).location;
     }
 
-    private RobotInfo getLeaderInfo()
+    private boolean isRobotAlive(Robot robot)
     {
-        RobotInfo robotInfo = null;
+        boolean isAlive = false;
 
-        if (leader != null)
+        if (robot != null)
         {
             try
             {
-                robotInfo = rc.senseRobotInfo(leader);
-            } catch (GameActionException e)
-            {
-                leader = null;
-            }
-        }
-
-        if (leader == null)
-        {
-            getNextLeader();
-        }
-
-        if (robotInfo == null && leader != null)
-        {
-            try
-            {
-                robotInfo = rc.senseRobotInfo(leader);
+                rc.senseRobotInfo(robot);
+                isAlive = true;
             } catch (GameActionException e)
             {
             }
         }
 
-        return robotInfo;
+        return isAlive;
     }
 
-    private RobotInfo getTargetInfo()
+    // Get the closest robot to 'loc' that is on 'team'
+    private Robot getNextRobot(Team team, MapLocation loc)
     {
-        RobotInfo robotInfo = null;
-
-        if (target != null)
-        {
-            try
-            {
-                robotInfo = rc.senseRobotInfo(target);
-            } catch (GameActionException e)
-            {
-                target = null;
-            }
-        }
-
-        if (target == null)
-        {
-            getNextTarget();
-        }
-
-        if (robotInfo == null && target != null)
-        {
-            try
-            {
-                robotInfo = rc.senseRobotInfo(target);
-            } catch (GameActionException e)
-            {
-            }
-        }
-
-        return robotInfo;
-    }
-
-    private void getNextLeader()
-    {
-        leader = getNextRobot(rc.getTeam());
-
-        if (leader != null)
-        {
-            leaderId = leader.getID();
-        } else
-        {
-            leaderId = 0;
-        }
-    }
-
-    private void getNextTarget()
-    {
-        target = getNextRobot(rc.getTeam().opponent());
-    }
-
-    private Robot getNextRobot(Team team)
-    {
-        Robot[] robots = rc.senseNearbyGameObjects(Robot.class,
-                new MapLocation(0, 0), 100000, team);
+        Robot[] robots = rc.senseNearbyGameObjects(Robot.class, loc, 100000,
+                team);
         Robot nextRobot = null;
         for (Robot robot : robots)
         {
@@ -219,6 +211,7 @@ public class HqSwarm extends RobotBrain
                 if (robotInfo.type == RobotType.SOLDIER)
                 {
                     nextRobot = robot;
+                    break;
                 }
             } catch (GameActionException e)
             {
