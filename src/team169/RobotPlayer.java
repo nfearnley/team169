@@ -52,10 +52,7 @@ public class RobotPlayer
                     debug_endRound(rc);
                     rc.yield();
                     debug_startRound();
-                    if (rc.isActive())
-                    {
-                        rb.run();
-                    }
+                    rb.run();
                 } catch (Exception e)
                 {
                     RobotBrain.debug_error(e, "run");

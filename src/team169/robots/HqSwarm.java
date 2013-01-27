@@ -38,8 +38,10 @@ public class HqSwarm extends RobotBrain
 
     public void run() throws GameActionException
     {
-        spawnInCircle();
-
+        if (rc.isActive())
+        {
+            spawnInCircle();
+        }
         getLeader();
         getTarget();
         bubbleLeader();

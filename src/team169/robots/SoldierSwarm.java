@@ -30,15 +30,18 @@ public class SoldierSwarm extends RobotBrain
     @Override
     public void run() throws GameActionException
     {
-        receiveBroadcasts();
-        checkIsLeader();
-        if (isLeader)
+        if (rc.isActive())
         {
-            moveTowards(targetLoc);
-        }
-        else
-        {
-            moveTowards(leaderLoc);
+            receiveBroadcasts();
+            checkIsLeader();
+            if (isLeader)
+            {
+                moveTowards(targetLoc);
+            }
+            else
+            {
+                moveTowards(leaderLoc);
+            }
         }
     }
 
