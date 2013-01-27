@@ -2,7 +2,6 @@ package team169;
 
 import team169.robots.HqSwarm;
 import team169.robots.SoldierSwarm;
-import team169.robots.SoldierYield;
 import battlecode.common.RobotController;
 
 public class RobotPlayer
