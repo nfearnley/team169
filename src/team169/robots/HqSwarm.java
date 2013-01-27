@@ -60,8 +60,7 @@ public class HqSwarm extends RobotBrain
                 rc.spawn(spawnDir);
             } catch (GameActionException e)
             {
-                System.err.println("spawnInCircle: Spawning exception");
-                e.printStackTrace();
+                debug_error(e, "spawnInCircle");
             }
         }
     }
@@ -92,8 +91,7 @@ public class HqSwarm extends RobotBrain
             rc.broadcast(BroadcastChannel.PATH_Y, pathLoc.y);
         } catch (GameActionException e)
         {
-            System.err.println("BroadcastCommands: Broadcasting exception");
-            e.printStackTrace();
+            debug_error(e, "BroadcastCommands");
         }
     }
 
@@ -154,7 +152,7 @@ public class HqSwarm extends RobotBrain
         }
         catch (GameActionException e)
         {
-            
+            debug_error(e, "bubbleLeader");
         }
     }
 
@@ -215,7 +213,7 @@ public class HqSwarm extends RobotBrain
                 }
             } catch (GameActionException e)
             {
-                e.printStackTrace();
+                debug_error(e, "getNextRobot");
             }
         }
 

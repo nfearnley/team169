@@ -15,5 +15,11 @@ public abstract class RobotBrain
     public abstract void init() throws GameActionException;
 
     public abstract void run() throws GameActionException;
+    
+    public static void debug_error(Exception e, String message)
+    {
+        System.err.println(message + ": error");
+        e.printStackTrace();
+    }
 
 }

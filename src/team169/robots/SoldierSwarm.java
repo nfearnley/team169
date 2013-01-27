@@ -2,7 +2,6 @@ package team169.robots;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
-import battlecode.common.GameActionExceptionType;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import team169.RobotBrain;
@@ -32,20 +31,14 @@ public class SoldierSwarm extends RobotBrain
     public void run() throws GameActionException
     {
         receiveBroadcasts();
-        //System.out.println("Run: Received broadcasts");
         checkIsLeader();
-        //System.out.println("Run: Checked if leader");
         if (isLeader)
         {
-            //System.out.println("Run: isLeader");
             moveTowards(targetLoc);
-            //System.out.println("Run: Moved towards target");
         }
         else
         {
-            //System.out.println("Run: isNotLeader");
             moveTowards(leaderLoc);
-            //System.out.println("Run: Moved towards leader");
         }
     }
 
@@ -57,7 +50,6 @@ public class SoldierSwarm extends RobotBrain
         }
         
         Direction enemyDir = rc.getLocation().directionTo(target);
-        //System.out.println(enemyDir + ": " + rc.getLocation() + " -> " + target);
         
         Direction newDir = Direction.NONE;
         if (rc.canMove(enemyDir))
@@ -94,7 +86,7 @@ public class SoldierSwarm extends RobotBrain
         }
         catch (GameActionException e)
         {
-            e.printStackTrace();
+            debug_error(e, "moveTowards");
         }
     }
     
@@ -118,19 +110,17 @@ public class SoldierSwarm extends RobotBrain
             int pathLocX = rc.readBroadcast(BroadcastChannel.PATH_X);
             int pathLocY = rc.readBroadcast(BroadcastChannel.PATH_Y);
             pathLoc = new MapLocation(pathLocX, pathLocY);
-            rc.setIndicatorString(0, leaderLoc.toString() + " -> " + targetLoc.toString());
-            rc.setIndicatorString(2, attack + " : " + leaderId);
         } catch (GameActionException e)
         {
-            if (e.getType() == GameActionExceptionType.NOT_ENOUGH_RESOURCE)
-            {
-                System.err.println("Not enough energy to receive broadcasts");
-            }
-            else
-            {
-                e.printStackTrace();
-            }
+            debug_error(e, "receiveBroadcasts");
         }
+        debug_setIndicator();
+    }
+    
+    private void debug_setIndicator()
+    {
+        rc.setIndicatorString(0, leaderLoc.toString() + " -> " + targetLoc.toString());
+        rc.setIndicatorString(2, (attack == 1 ? "Attack" : "Follow") + " : " + leaderId);
     }
 
 }
